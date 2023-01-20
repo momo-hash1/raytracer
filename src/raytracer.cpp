@@ -1,25 +1,31 @@
 #include "headers/raytracer.h"
 #include "headers/constants.h"
-#include "headers/raytracer.h"
-#include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <glm/vec3.hpp>
+#include <limits>
 
-void raytracer::render(sf::Uint8 *pixels)
+glm::vec3 raytracer::cast_ray(glm::vec3 orig, glm::vec3 dir, Sphere sphere)
 {
-    for (int j = 4; j < HEIGHT * 4; j+=4)
+    float t0 = std::numeric_limits<float>::max();
+    if(!sphere.intersection(orig, dir, t0)){
+        return glm::vec3(0,0,0);
+    }
+    return glm::vec3(1,1,1);
+}
+void raytracer::render(glm::vec3 *pixels)
+{
+    float fov = M_PI / 2;
+    for (int j = 0; j < HEIGHT; j++)
     {
-        for (int i = 4; i < WIDTH * 4; i+=4)
+        for (int i = 0; i < WIDTH; i++)
         {
-            double x = i-4;
-            double y = j-4;
-            int res_pos = x + y * WIDTH;
-            
-            pixels[res_pos] = floor(255 * std::max(0.d, std::min(1.d, y / HEIGHT)));
-            pixels[res_pos + 1] = floor(255 * std::max(0.d, std::min(1.d, (x / WIDTH))));
-            pixels[res_pos + 2] = 0;
-            pixels[res_pos + 3] = 255;
-        }
+            float x = (2 * (i + 0.5) / (float)WIDTH - 1) * tan(fov / 2.) * WIDTH / (float)HEIGHT;
+            float y = -(2 * (j + 0.5) / (float)HEIGHT - 1) * tan(fov / 2.);
 
+            glm::vec3 dir = glm::vec3(x, y, -1);
+            dir = glm::normalize(dir);
+            pixels[i + j * WIDTH] = cast_ray(glm::vec3(0, 0, 0), dir, Sphere(glm::vec3(0, 0, -16), 2));
+        }
     }
 }
