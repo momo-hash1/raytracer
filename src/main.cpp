@@ -1,11 +1,19 @@
 #include <SFML/Graphics.hpp>
+#include <glm/vec2.hpp>
+#include <iostream>
+#include "headers/raytracer.h"
+#include "headers/constants.h"
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
 
+    sf::Uint8 *pixels = new sf::Uint8[WIDTH * HEIGHT * 4];
+    sf::Texture viewport_texture;
+    viewport_texture.create(WIDTH, HEIGHT);
+    sf::Sprite viewport(viewport_texture);
+    viewport_texture.setSmooth(true);
+    
     while (window.isOpen())
     {
         sf::Event event;
@@ -15,8 +23,12 @@ int main()
                 window.close();
         }
 
-        window.clear();
-        window.draw(shape);
+        window.clear(sf::Color::Black);
+
+        raytracer::render(pixels);
+        viewport_texture.update(pixels);
+        
+        window.draw(viewport);
         window.display();
     }
 
