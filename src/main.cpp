@@ -14,7 +14,7 @@ void handle_key_input(sf::Event &event, sf::Texture &texture, raytracer::World &
         world.camera_offset = world.camera_offset + glm::vec3(0, 0, -5);
         break;
     case sf::Keyboard::S:
-        world.camera_offset = world.camera_offset + glm::vec3(0, 0,5);
+        world.camera_offset = world.camera_offset + glm::vec3(0, 0, 5);
         break;
     case sf::Keyboard::D:
         world.camera_offset = world.camera_offset + glm::vec3(5, 0, 0);
@@ -33,8 +33,9 @@ int main()
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
 
     raytracer::World world;
-    world.add_sphere(glm::vec3(0, 0, -16), 2);
-    world.add_sphere(glm::vec3(-8, 0, -16), 2);
+    world.add_sphere(glm::vec3(0, 0, -16), 2, glm::vec3(0.5, 0.1, 0.5));
+    world.add_sphere(glm::vec3(-8, 0, -16), 2, glm::vec3(0.1, 0.5, 0.1));
+    world.add_light(glm::vec3(-20, 20, 20), 1.5);
 
     sf::Uint8 *pixels = new sf::Uint8[WIDTH * HEIGHT * 4];
     world.render(pixels);
@@ -64,5 +65,6 @@ int main()
         window.draw(viewport);
         window.display();
     }
+
     return 0;
 }

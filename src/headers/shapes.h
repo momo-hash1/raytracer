@@ -5,11 +5,13 @@ struct Sphere
 {
     glm::vec3 center;
     int radius;
+    glm::vec3 color;
     int d_radius;
-    Sphere(glm::vec3 _center, int _radius){
+    Sphere(glm::vec3 _center, int _radius, glm::vec3 _color){
         center = _center;
         radius = _radius;
         d_radius = radius * radius;
+        color = _color;
     }
     bool intersection(glm::vec3 orig, glm::vec3 dir, float &t0)
     {
