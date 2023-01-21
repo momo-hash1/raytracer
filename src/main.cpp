@@ -5,30 +5,15 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 
-void pixel_arr_to_texture(glm::vec3 *pixels, sf::Uint8 *color_arr)
-{
-    int offset = 0;
-    for (int i = 0; i < WIDTH * HEIGHT; i++)
-    {
-        glm::vec3 color = pixels[i];
-        color_arr[offset] = floor(255 * color[0]);
-        color_arr[offset + 1] = floor(255 * color[1]);
-        color_arr[offset + 2] = floor(255 * color[2]);
-        color_arr[offset + 3] = 255;
-        offset += 4;
-    }
-}
 
-void displayPixelArray(glm::vec3 *pixels)
+void displayPixelArray(sf::Uint8 *pixels)
 {
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
 
     sf::Texture texture;
     texture.create(WIDTH, HEIGHT);
 
-    sf::Uint8 *color_arr = new sf::Uint8[WIDTH * HEIGHT * 4];
-    pixel_arr_to_texture(pixels, color_arr);
-    texture.update(color_arr);
+    texture.update(pixels);
 
     sf::Sprite viewport(texture);
 
@@ -48,22 +33,21 @@ void displayPixelArray(glm::vec3 *pixels)
                 switch (event.key.code)
                 {
                 case sf::Keyboard::W:
-                    offset_dir = offset_dir + glm::vec3(0, 0, -1);
+                    offset_dir = offset_dir + glm::vec3(0, 0, -0.5);
                     break;
                 case sf::Keyboard::S:
-                    offset_dir = offset_dir + glm::vec3(0, 0, 1);
+                    offset_dir = offset_dir + glm::vec3(0, 0, 0.5);
                     break;
                 case sf::Keyboard::D:
-                    offset_dir = offset_dir + glm::vec3(1, 0, 0);
+                    offset_dir = offset_dir + glm::vec3(0.5, 0, 0);
                     break;
                 case sf::Keyboard::A:
-                    offset_dir = offset_dir + glm::vec3(-1, 0, 0);
+                    offset_dir = offset_dir + glm::vec3(-0.5, 0, 0);
                     break;
                 }
                 raytracer::render(pixels, offset_dir);
 
-                pixel_arr_to_texture(pixels, color_arr);
-                texture.update(color_arr);
+                texture.update(pixels);
             }
         }
 
@@ -75,7 +59,7 @@ void displayPixelArray(glm::vec3 *pixels)
 
 int main()
 {
-    glm::vec3 *pixels = new glm::vec3[WIDTH * HEIGHT];
+    sf::Uint8 *pixels = new sf::Uint8[WIDTH * HEIGHT * 4];
     raytracer::render(pixels, glm::vec3(0, 0, 0));
 
     displayPixelArray(pixels);

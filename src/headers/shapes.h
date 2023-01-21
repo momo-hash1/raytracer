@@ -5,7 +5,10 @@ struct Sphere
 {
     glm::vec3 center;
     int radius;
-    Sphere(glm::vec3 center, int radius) : center(center), radius(radius) {}
+    Sphere(glm::vec3 _center, int _radius){
+        center = _center;
+        radius = _radius;
+    }
     bool intersection(glm::vec3 orig, glm::vec3 dir, float &t0)
     {
         glm::vec3 L = center - orig;
