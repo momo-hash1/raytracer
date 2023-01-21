@@ -2,22 +2,47 @@
 #include <iostream>
 #include "headers/raytracer.h"
 #include "headers/constants.h"
+#include <vector>
 #include <fstream>
 #include <SFML/Graphics.hpp>
 
+void handle_key_input(sf::Event &event, sf::Texture &texture, raytracer::World &world, sf::Uint8 *pixels)
+{
+    switch (event.key.code)
+    {
+    case sf::Keyboard::W:
+        world.camera_offset = world.camera_offset + glm::vec3(0, 0, -0.5);
+        break;
+    case sf::Keyboard::S:
+        world.camera_offset = world.camera_offset + glm::vec3(0, 0, 0.5);
+        break;
+    case sf::Keyboard::D:
+        world.camera_offset = world.camera_offset + glm::vec3(0.5, 0, 0);
+        break;
+    case sf::Keyboard::A:
+        world.camera_offset = world.camera_offset + glm::vec3(-0.5, 0, 0);
+        break;
+    }
+    world.render(pixels);
 
-void displayPixelArray(sf::Uint8 *pixels)
+    texture.update(pixels);
+}
+
+void displayPixelArray()
 {
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
 
+    raytracer::World world;
+    world.add_sphere(glm::vec3(0, 0, -16), 2);
+
+    sf::Uint8 *pixels = new sf::Uint8[WIDTH * HEIGHT * 4];
+    world.render(pixels);
+
     sf::Texture texture;
     texture.create(WIDTH, HEIGHT);
-
     texture.update(pixels);
 
     sf::Sprite viewport(texture);
-
-    glm::vec3 offset_dir(0, 0, 0);
 
     while (window.isOpen())
     {
@@ -30,24 +55,7 @@ void displayPixelArray(sf::Uint8 *pixels)
             }
             if (event.type == sf::Event::KeyPressed)
             {
-                switch (event.key.code)
-                {
-                case sf::Keyboard::W:
-                    offset_dir = offset_dir + glm::vec3(0, 0, -0.5);
-                    break;
-                case sf::Keyboard::S:
-                    offset_dir = offset_dir + glm::vec3(0, 0, 0.5);
-                    break;
-                case sf::Keyboard::D:
-                    offset_dir = offset_dir + glm::vec3(0.5, 0, 0);
-                    break;
-                case sf::Keyboard::A:
-                    offset_dir = offset_dir + glm::vec3(-0.5, 0, 0);
-                    break;
-                }
-                raytracer::render(pixels, offset_dir);
-
-                texture.update(pixels);
+                handle_key_input(event, texture, world, pixels);
             }
         }
 
@@ -59,9 +67,6 @@ void displayPixelArray(sf::Uint8 *pixels)
 
 int main()
 {
-    sf::Uint8 *pixels = new sf::Uint8[WIDTH * HEIGHT * 4];
-    raytracer::render(pixels, glm::vec3(0, 0, 0));
-
-    displayPixelArray(pixels);
+    displayPixelArray();
     return 0;
 }
