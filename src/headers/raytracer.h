@@ -12,7 +12,7 @@ namespace raytracer
 
         glm::vec3 cast_ray(glm::vec3 orig, glm::vec3 dir);
         void render(sf::Uint8 *pixels);
-        void scene_intersect(glm::vec3 orig, glm::vec3 dir);
+        bool scene_intersect(glm::vec3 orig, glm::vec3 dir, glm::vec3 &t0_out, glm::vec3 &normal_out, glm::vec3 &color_out);
         void add_sphere(glm::vec3 center, int radius);
     };
 
