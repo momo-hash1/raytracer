@@ -15,10 +15,10 @@ struct Material
     {
     }
     Material() : albedo(glm::vec2(1, 1)){}
-    glm::vec3 reflect(glm::vec3 light_dir, glm::vec3 normal)
-    {
-        return light_dir - normal * 2.f * glm::dot(light_dir, normal);
-    }
 };
 
+inline glm::vec3 _reflect(glm::vec3 light_dir, glm::vec3 normal)
+{
+    return light_dir - normal * 2.f * glm::dot(light_dir, normal);
+}
 #endif

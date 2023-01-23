@@ -14,6 +14,7 @@ glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir)
     glm::vec3 t0, normal;
     Material material;
     float diffuse_light = 0;
+    float specular = 0;
     if (!scene_intersect(orig, dir, t0, normal, material))
     {
         return glm::vec3(0, 0, 0);
@@ -23,9 +24,10 @@ glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir)
     {
         glm::vec3 light_dir = glm::normalize(lights[i].position - t0);
         diffuse_light += lights[i].intensity * std::max(0.f, glm::dot(light_dir, normal));
+        specular += powf(std::max(0.f, glm::dot(_reflect(light_dir, normal), dir)), material.specular) * lights[i].intensity;
     }
-
-    return material.color * diffuse_light;
+    
+    return material.color * diffuse_light + 0.1f *specular;
 }
 
 void World::render(sf::Uint8 *pixels)
@@ -43,6 +45,9 @@ void World::render(sf::Uint8 *pixels)
             glm::vec3 dir = glm::vec3(x, y, -1);
             dir = glm::normalize(dir);
             glm::vec3 color = World::cast_ray(camera_offset, dir);
+
+            float max_color = std::max(color[0], std::max(color[1], color[2]));
+            if(max_color > 1) color *= 1.f/max_color;
 
             pixels[offset] = floor(255 * color[0]);
             pixels[offset + 1] = floor(255 * color[1]);
