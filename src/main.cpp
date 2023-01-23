@@ -32,9 +32,11 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
 
+    Material mat = Material(glm::vec3(0.1, 0.5, 0.1), 0.4, glm::vec2(0.4, 0.3));
+
     raytracer::World world;
-    world.add_sphere(glm::vec3(0, 0, -16), 2, glm::vec3(0.5, 0.1, 0.5));
-    world.add_sphere(glm::vec3(-8, 0, -16), 2, glm::vec3(0.1, 0.5, 0.1));
+    world.add_sphere(glm::vec3(0, 0, -5), 2, mat);
+    world.add_sphere(glm::vec3(-8, 0, -16), 2, mat);
     world.add_light(glm::vec3(-20, 20, 20), 1.5);
 
     sf::Uint8 *pixels = new sf::Uint8[WIDTH * HEIGHT * 4];

@@ -1,17 +1,20 @@
+#ifndef SHAPES_HEADER
+#define SHAPES_HEADER
+
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
+#include "material.h"
 
 struct Sphere
 {
     glm::vec3 center;
     int radius;
-    glm::vec3 color;
+    Material material;
     int d_radius;
-    Sphere(glm::vec3 _center, int _radius, glm::vec3 _color){
-        center = _center;
-        radius = _radius;
-        d_radius = radius * radius;
-        color = _color;
+    Sphere(glm::vec3 _center,
+           int _radius, Material _material) : center(_center), radius(_radius),
+                                              material(_material), d_radius(radius * radius)
+    {
     }
     bool intersection(glm::vec3 orig, glm::vec3 dir, float &t0)
     {
@@ -30,3 +33,4 @@ struct Sphere
         return true;
     };
 };
+#endif
