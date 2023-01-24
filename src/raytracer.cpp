@@ -14,7 +14,7 @@ float norm(glm::vec3 theta)
 
 using namespace raytracer;
 
-glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth=0)
+glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth = 0)
 {
     glm::vec3 t0, normal;
     Material material;
@@ -26,8 +26,12 @@ glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth=0)
     }
 
     glm::vec3 reflect_dir = glm::normalize(glm::reflect(dir, normal));
-    glm::vec3 reflect_orig = glm::dot(reflect_dir, normal) < 0 ? t0 - normal*1e-3f : t0 + normal*1e-3f; 
+    glm::vec3 reflect_orig = glm::dot(reflect_dir, normal) < 0 ? t0 - normal * 1e-3f : t0 + normal * 1e-3f;
     glm::vec3 reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
+
+    glm::vec3 refract_dir = glm::normalize(glm::refract(dir, normal, 1.333f ));
+    glm::vec3 refract_orig = glm::dot(refract_dir, normal) < 0 ? t0 - normal * 1e-3f : t0 + normal * 1e-3f;
+    glm::vec3 refract_color = cast_ray(refract_orig, refract_dir, depth + 1);
 
     for (size_t i = 0; i < lights.size(); i++)
     {
@@ -51,7 +55,8 @@ glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth=0)
         specular += powf(std::max(0.f, glm::dot(glm::reflect(light_dir, normal), dir)), material.specular) * lights[i].intensity;
     }
 
-    return material.color * diffuse_light + 0.1f * specular + reflect_color * material.reflect_ratio;
+    return material.color * diffuse_light + 0.1f * glm::vec3(1.f,1.f,1.f) * specular +
+           reflect_color * material.reflect_ratio + refract_color * material.refract;
 }
 
 void World::render(sf::Uint8 *pixels)
