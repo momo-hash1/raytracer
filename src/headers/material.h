@@ -9,12 +9,12 @@ struct Material
 {
     glm::vec3 color;
     float specular;
-    glm::vec2 albedo;
+    float reflect_ratio;
     Material(glm::vec3 _color, float _specular,
-             glm::vec2 _albedo) : color(_color), specular(_specular), albedo(_albedo)
+              float _reflect) : color(_color), specular(_specular), reflect_ratio(_reflect)
     {
     }
-    Material() : albedo(glm::vec2(1, 1)){}
+    Material() : specular(0){}
 };
 
 inline glm::vec3 _reflect(glm::vec3 light_dir, glm::vec3 normal)

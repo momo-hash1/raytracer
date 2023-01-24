@@ -14,16 +14,20 @@ float norm(glm::vec3 theta)
 
 using namespace raytracer;
 
-glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir)
+glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth=0)
 {
     glm::vec3 t0, normal;
     Material material;
     float diffuse_light = 0;
     float specular = 0;
-    if (!scene_intersect(orig, dir, t0, normal, material))
+    if (depth > 4 || !scene_intersect(orig, dir, t0, normal, material))
     {
         return glm::vec3(0, 0, 0);
     }
+
+    glm::vec3 reflect_dir = glm::normalize(glm::reflect(dir, normal));
+    glm::vec3 reflect_orig = glm::dot(reflect_dir, normal) < 0 ? t0 - normal*1e-3f : t0 + normal*1e-3f; 
+    glm::vec3 reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
 
     for (size_t i = 0; i < lights.size(); i++)
     {
@@ -44,10 +48,10 @@ glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir)
         }
 
         diffuse_light += lights[i].intensity * std::max(0.f, glm::dot(light_dir, normal));
-        specular += powf(std::max(0.f, glm::dot(_reflect(light_dir, normal), dir)), material.specular) * lights[i].intensity;
+        specular += powf(std::max(0.f, glm::dot(glm::reflect(light_dir, normal), dir)), material.specular) * lights[i].intensity;
     }
 
-    return material.color * diffuse_light + 0.1f * specular;
+    return material.color * diffuse_light + 0.1f * specular + reflect_color * material.reflect_ratio;
 }
 
 void World::render(sf::Uint8 *pixels)

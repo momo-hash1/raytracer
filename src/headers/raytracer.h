@@ -15,7 +15,7 @@ namespace raytracer
         std::vector<Sphere> spheres;
         std::vector<Light> lights;
 
-        glm::vec3 cast_ray(glm::vec3 orig, glm::vec3 dir);
+        glm::vec3 cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth);
         void render(sf::Uint8 *pixels);
         bool scene_intersect(glm::vec3 orig, glm::vec3 dir, glm::vec3 &t0_out, glm::vec3 &normal_out, Material &material);
         void add_sphere(glm::vec3 center, int radius, Material material);
