@@ -7,6 +7,11 @@
 #include "headers/raytracer.h"
 #include "headers/material.h"
 
+float norm(glm::vec3 theta)
+{
+    return sqrtf(theta.x * theta.x + theta.y * theta.y + theta.z * theta.z);
+}
+
 using namespace raytracer;
 
 glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir)
@@ -22,12 +27,27 @@ glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir)
 
     for (size_t i = 0; i < lights.size(); i++)
     {
-        glm::vec3 light_dir = glm::normalize(lights[i].position - t0);
+        glm::vec3 theta = lights[i].position - t0;
+        glm::vec3 light_dir = glm::normalize(theta);
+
+        float light_distance = norm(theta);
+        glm::vec3 shadow_orig = glm::dot(light_dir, normal) < 0 ? t0 - normal * 1e-3f : t0 + normal * 1e-3f;
+
+        glm::vec3 shadow_t0, shadow_n;
+        Material tmpmat;
+
+        if (scene_intersect(shadow_orig, light_dir, shadow_t0,
+                            shadow_n, tmpmat) &&
+            norm(shadow_t0 - shadow_orig) < light_distance)
+        {
+            continue;
+        }
+
         diffuse_light += lights[i].intensity * std::max(0.f, glm::dot(light_dir, normal));
         specular += powf(std::max(0.f, glm::dot(_reflect(light_dir, normal), dir)), material.specular) * lights[i].intensity;
     }
-    
-    return material.color * diffuse_light + 0.1f *specular;
+
+    return material.color * diffuse_light + 0.1f * specular;
 }
 
 void World::render(sf::Uint8 *pixels)
@@ -47,7 +67,8 @@ void World::render(sf::Uint8 *pixels)
             glm::vec3 color = World::cast_ray(camera_offset, dir);
 
             float max_color = std::max(color[0], std::max(color[1], color[2]));
-            if(max_color > 1) color *= 1.f/max_color;
+            if (max_color > 1)
+                color *= 1.f / max_color;
 
             pixels[offset] = floor(255 * color[0]);
             pixels[offset + 1] = floor(255 * color[1]);
