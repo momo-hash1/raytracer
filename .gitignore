@@ -1,3 +1,12 @@
 *.out
 *.o
 .vscode
+.vs
+*.dll
+Debug
+*.ppm
+*.sln
+*.vcxproj.*
+*.vcxproj
+*.json
+included

@@ -1,8 +1,8 @@
 #ifndef SHAPES_HEADER
 #define SHAPES_HEADER
 
-#include <glm/vec3.hpp>
-#include <glm/geometric.hpp>
+#include "../included/glm/vec3.hpp"
+#include "../included/glm/geometric.hpp"
 #include "material.h"
 
 struct Sphere

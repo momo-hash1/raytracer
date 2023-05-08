@@ -1,9 +1,9 @@
 #ifndef MATERIAL_HEADER
 #define MATERIAL_HEADER
 
-#include <glm/vec3.hpp>
-#include <glm/geometric.hpp>
-#include <glm/vec2.hpp>
+#include "../included/glm/vec3.hpp"
+#include "../included/glm/geometric.hpp"
+#include "../included/glm/vec2.hpp"
 #include <algorithm>
 
 struct Material

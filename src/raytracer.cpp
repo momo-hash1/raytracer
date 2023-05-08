@@ -1,11 +1,13 @@
 #include "headers/constants.h"
+#define _USE_MATH_DEFINES
 #include <cmath>
-#include <glm/vec3.hpp>
+#include "../included/glm/vec3.hpp"
 #include <limits>
 #include <algorithm>
 #include <iostream>
 #include "headers/raytracer.h"
 #include "headers/material.h"
+
 
 float norm(glm::vec3 theta)
 {
@@ -13,6 +15,10 @@ float norm(glm::vec3 theta)
 }
 
 using namespace raytracer;
+
+raytracer::World::World(Screen& screen) : m_screen{ screen }
+{
+}
 
 glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth = 0)
 {
@@ -29,7 +35,7 @@ glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth = 0)
     glm::vec3 reflect_orig = glm::dot(reflect_dir, normal) < 0 ? t0 - normal * 1e-3f : t0 + normal * 1e-3f;
     glm::vec3 reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
 
-    glm::vec3 refract_dir = glm::normalize(glm::refract(dir, normal, 1.333f ));
+    glm::vec3 refract_dir = glm::normalize(glm::refract(dir, normal, 1.333f));
     glm::vec3 refract_orig = glm::dot(refract_dir, normal) < 0 ? t0 - normal * 1e-3f : t0 + normal * 1e-3f;
     glm::vec3 refract_color = cast_ray(refract_orig, refract_dir, depth + 1);
 
@@ -55,36 +61,32 @@ glm::vec3 World::cast_ray(glm::vec3 orig, glm::vec3 dir, size_t depth = 0)
         specular += powf(std::max(0.f, glm::dot(glm::reflect(light_dir, normal), dir)), material.specular) * lights[i].intensity;
     }
 
-    return material.color * diffuse_light + 0.1f * glm::vec3(1.f,1.f,1.f) * specular +
+    return material.color * diffuse_light + 0.1f * glm::vec3(1.f, 1.f, 1.f) * specular +
            reflect_color * material.reflect_ratio + refract_color * material.refract;
 }
 
-void World::render(sf::Uint8 *pixels)
+void World::render()
 {
-    float fov = M_PI / 2;
+    float fov = 1.05;
     float c_tan = tan(fov / 2.);
-    int offset = 0;
-    for (int j = 0; j < HEIGHT; j++)
+    const int width{ m_screen.getSize()[0] };
+    const int height{ m_screen.getSize()[1] };
+    #pragma omp parallel for
+
+    for (int i = 0; i < m_screen.getActualSize(); i += COLOR_STEP)
     {
-        for (int i = 0; i < WIDTH; i++)
-        {
-            float x = (2 * (i + 0.5) / (float)WIDTH - 1) * c_tan * WIDTH / (float)HEIGHT;
-            float y = -(2 * (j + 0.5) / (float)HEIGHT - 1) * c_tan;
+        const int y_pos = (i / COLOR_STEP) / width;
+        const int x_pos = (i / COLOR_STEP) - (width * y_pos);
 
-            glm::vec3 dir = glm::vec3(x, y, -1);
-            dir = glm::normalize(dir);
-            glm::vec3 color = World::cast_ray(camera_offset, dir);
+        float x = (2 * (x_pos + 0.5) / (float)width - 1) * c_tan * width / (float)height;
+        float y = -(2 * (y_pos + 0.5) / (float)height - 1) * c_tan;
 
-            float max_color = std::max(color[0], std::max(color[1], color[2]));
-            if (max_color > 1)
-                color *= 1.f / max_color;
+        glm::vec3 dir = glm::vec3(x, y, -1);
+        dir = glm::normalize(dir);
 
-            pixels[offset] = floor(255 * color[0]);
-            pixels[offset + 1] = floor(255 * color[1]);
-            pixels[offset + 2] = floor(255 * color[2]);
-            pixels[offset + 3] = 255;
-            offset += 4;
-        }
+        glm::vec3 color_pixel = World::cast_ray(glm::vec3(0, 0, 0), dir);
+
+        m_screen.setPixel(i, color_pixel);
     }
 }
 
